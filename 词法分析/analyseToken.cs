@@ -267,6 +267,7 @@ namespace 词法分析
                     ch = (char)sr.Read(); ch = (char)sr.Read();                   //忽略/* */之间的注释
                 }
                 prog[p++] = ch;
+                
             } while (sr.Peek() >= 0);
             p = 0;
             do

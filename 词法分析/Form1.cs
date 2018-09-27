@@ -33,11 +33,12 @@ namespace 词法分析
                 sourceFileName = dialog.FileName;
                 ayt.setSourceFileName(sourceFileName);
             }
-            string[] lines = File.ReadAllLines(sourceFileName);    
+            string[] lines = File.ReadAllLines(sourceFileName);
             // 在textBox1中显示文件内容
+            char i = '0';
             foreach (string line in lines)
             {
-                textBox1.AppendText(line + Environment.NewLine);
+                textBox1.AppendText(++i -'0' +" "+line + Environment.NewLine);
             }
         }
 
@@ -64,6 +65,11 @@ namespace 词法分析
             {
                 textBox2.AppendText(line + Environment.NewLine);
             }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
