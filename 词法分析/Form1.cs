@@ -15,6 +15,7 @@ namespace 词法分析
     {
         string sourceFileName;
         string builtFileName;
+        static public string[] temp = new String[1000];
         analyseToken ayt = new analyseToken();
         public Form1()
         {
@@ -36,10 +37,13 @@ namespace 词法分析
             string[] lines = File.ReadAllLines(sourceFileName);
             // 在textBox1中显示文件内容
             char i = '0';
+            int j = 0;
             foreach (string line in lines)
             {
-                textBox1.AppendText(++i -'0' +" "+line + Environment.NewLine);
-            }
+                string str = ++i - '0' + " " + line + Environment.NewLine;
+                textBox1.AppendText(str);
+                temp[j++] = str;
+            }           
         }
 
         private void buildFileButton_Click(object sender, EventArgs e)

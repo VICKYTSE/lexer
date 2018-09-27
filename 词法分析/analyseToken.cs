@@ -22,8 +22,11 @@ namespace 词法分析
         int p = 0;
         int sym = 0;
         int n;
-        string[] keyword = { "if", "else", "while", "for", "do", "return", "int" ,"main","void","double","float","case","for","do","short","static","true","false","try","delete","class","break","bool","goto","default","using",
-        "new","continue","switch","throw","unsigned","signed","sizeof"};                    //关键词数组
+        int errorLine;    //当前扫描的行号
+        string[] keyword = { "if", "else", "while", "for", "do", "return",
+         "int" ,"main","void","double","float","case","for","do","short","static",
+        "true","false","try","delete","class","break","bool","goto","default","using",
+        "new","continue","switch","throw","unsigned","signed","sizeof"};  //关键词数组
 
         public analyseToken()     //构造函数
         {
@@ -39,17 +42,18 @@ namespace 词法分析
         }
         protected void GetToken()
         {
-            //Console.WriteLine("that is GetToken");
-            for (n = 0; n < 8; n++)
+            ch = prog[p++];
+            while (ch == ' ' || ch == '\n' || ch == '\t' ||(int)ch == 13||(int)ch==9) { ch = prog[p++]; }
+
+            for (n = 0; n < 20; n++)
             {
                 token[n] = '\0';
             }
             n = 0;
-            ch = prog[p++];
-            while (ch == ' ' || ch == '\n' || ch == '\t' ||(int)ch == 13||(int)ch==9) { ch = prog[p++]; }
+
             if ((int)ch == 0)
             {
-                //Console.WriteLine("over");
+
                 return;
             }
             if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')||ch == '_')
@@ -63,10 +67,10 @@ namespace 词法分析
                 sym = 2;
 
                 string str1 = null;
-                //if (token[0] == (char)0) break;
+
                 for (int i = 0; token[i] != '\0'; i++)
                 {
-                    //Console.WriteLine("that is writing str1");
+
                     str1 += token[i];
                 }
                 for (n = 0; n<33;n++)
@@ -76,6 +80,7 @@ namespace 词法分析
                         sym = n + 23;
                     }
                 }
+
                 p--;
                 
             }
@@ -209,15 +214,16 @@ namespace 词法分析
                 } while (ch >= '0' && ch <= '9');
                 sym = 14;
 
-                if (ch != ' ' && ch != '+' && ch != '-' && ch != '*' && ch != '/' && ch != ';' && ch != '\n' && ch != '\t' && (int)ch != 13 && (int)ch != 9)
+                if (ch != ' ' && ch != '+' && ch != '-' && ch != '*' && ch != '/' && ch != ';' && ch != '\n' && ch != '\t' && (int)ch != 13 && (int)ch != 9 && ch != '{' && ch != '(' && ch != '[' && ch != '<' && ch != '>' && ch != '=' && ch != '}' && ch != ')' && ch != ']')
                 {
+                    do
+                    {
+                        token[n++] = ch;
+                        ch = prog[p++];
+                    } while (!(ch == ' ' || ch == '\n' || ch == '\t' || (int)ch == 13 || (int)ch == 9));
                     sym = -1;
+                    LocateError();
                 }
-
-                //if ((ch >= 'a' && ch <= 'z') || ch == '_'|| (ch >= 'A' && ch <= 'Z'))
-                //{
-                //    sym = -1; return;
-                //}
                  p--;
 
                 //Console.WriteLine("sym=" + sym + "and ch=" + ch);
@@ -256,18 +262,17 @@ namespace 词法分析
             do
             {
                 ch = (char)sr.Read();
-                if (ch == '/' && sr.Peek() == '/') { string c = sr.ReadLine(); ch = (char)sr.Read(); }            //忽略//后的注释
+                if (ch == '/' && sr.Peek() == '/') { string c = sr.ReadLine(); ch = '\n';}            //忽略//后的注释
                 if (ch == '/' && sr.Peek() == '*')
                 {
                     do
                     {
                         ch = (char)sr.Read();
-                        //Console.WriteLine(ch);
                     } while (!(ch == '*' && sr.Peek() == '/'));
                     ch = (char)sr.Read(); ch = (char)sr.Read();                   //忽略/* */之间的注释
                 }
                 prog[p++] = ch;
-                
+
             } while (sr.Peek() >= 0);
             p = 0;
             do
@@ -284,7 +289,7 @@ namespace 词法分析
                     //Console.WriteLine("sym"+sym);
                     switch (sym)
                     {
-                        case -1: string str2 = '(' + sym.ToString() + ',' + "Error"+ ')'; sw.WriteLine(str2); Console.WriteLine(str2); break;
+                        case -1: string str2 = "Line"+errorLine.ToString()+ " **Error occurs in "+str1 ; sw.WriteLine(str2); Console.WriteLine(str2); break;
                         case -2: string str3 = '(' + sym.ToString() + ',' + "Error" + ')'; sw.WriteLine(str3); Console.WriteLine(str3); break;
                         default: string str = '(' + sym.ToString() + ',' + str1 + ')'; sw.WriteLine(str); Console.WriteLine(str); break;
                     }
@@ -294,6 +299,22 @@ namespace 词法分析
             sw.Close();
             Console.WriteLine("File closed.");
         }
+
+        void LocateError()
+        {
+            string str1 = null;
+            for (int i = 0; token[i] != '\0'; i++)
+            {
+                str1 += token[i];
+            }
+            int j = 0;
+            while (!string.IsNullOrWhiteSpace(Form1.temp[j]))
+            {
+                int i = Form1.temp[j++].IndexOf(str1);
+                if (i > 0) { errorLine = j; break; }
+            }
+        }
+
 
 
     }
